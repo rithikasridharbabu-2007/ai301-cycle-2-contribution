@@ -67,9 +67,140 @@ For Week 6, I selected a new issue for Cycle 2, forked the project, created this
 
 ---
 
+
 ## Phase II — Reproduce and Plan
 
-Status: Not started yet.
+## Phase II — Reproduce and Plan
+
+Status: Phase II Complete
+
+### Working Branch
+
+Fork: https://github.com/rithikasridharbabu-2007/readme2demo  
+Branch: `fix-stale-doc-test-counts`
+
+I cloned my fork locally and created a working branch for the issue.
+
+```bash
+git clone https://github.com/rithikasridharbabu-2007/readme2demo.git
+cd readme2demo
+git checkout -b fix-stale-doc-test-counts
+```
+
+### Environment Setup
+
+I set up the project locally on macOS. My first attempt used the default `python3`, which pointed to Python 3.14.6. Creating the virtual environment failed because `ensurepip` returned a non-zero exit status, so `.venv/bin/activate` was not created.
+
+I checked the available Python versions and found Python 3.11 installed at `/opt/homebrew/bin/python3.11`. I then recreated the virtual environment with Python 3.11, activated it, upgraded pip, and installed the project in editable development mode.
+
+```bash
+/opt/homebrew/bin/python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e ".[dev]"
+```
+
+Result: setup succeeded with Python 3.11.15.
+
+### Reproduction Steps
+
+1. Clone the fork and create a working branch.
+2. Search the files named in the issue for stale test-count references:
+
+   ```bash
+   grep -n "175\|163\|252\|test" README.md docs/step-by-step.md CHANGELOG.md
+   ```
+
+3. Confirm that `README.md` says:
+
+   ```text
+   python -m pytest tests/ -q            # 175 unit tests, no docker/network needed
+   ```
+
+4. Confirm that `docs/step-by-step.md` says:
+
+   ```text
+   run its 163-test suite
+   ```
+
+   and:
+
+   ```text
+   You should see all 163 tests pass.
+   ```
+
+5. Set up a Python 3.11 virtual environment and install the project in editable development mode.
+6. Run:
+
+   ```bash
+   python -m pytest --collect-only -q
+   ```
+
+### Expected vs. Actual Behavior
+
+Expected behavior: The README, step-by-step guide, and CHANGELOG should describe the current project state accurately. Test-count references should either be current or avoid hardcoded numbers that can become stale.
+
+Actual behavior: The documentation contains contradictory stale numbers. `README.md` says 175 unit tests, while `docs/step-by-step.md` says 163 tests. A fresh local collection run reports 277 tests collected, so both documented numbers are outdated.
+
+### Evidence
+
+Relevant stale documentation locations:
+
+- `README.md` line 128: says 175 unit tests
+- `docs/step-by-step.md` line 3: says 163-test suite
+- `docs/step-by-step.md` line 33: says all 163 tests pass
+- `CHANGELOG.md`: footer needs review for stale version comparison links
+
+Local verification:
+
+```text
+Python 3.11.15
+Successfully installed readme2demo-0.5.0 and development dependencies
+277 tests collected in 0.76s
+```
+
+### Files Involved
+
+Likely files to update:
+
+- `README.md`
+- `docs/step-by-step.md`
+- `CHANGELOG.md`
+
+### Root Cause
+
+The root cause is documentation drift. The project’s test suite grew over time, but the README and step-by-step guide kept old hardcoded test-count numbers. The CHANGELOG footer also appears to have stayed on older version-link references instead of being updated for the current release.
+
+### UMPIRE Plan
+
+#### Understand
+
+The issue is not a code behavior bug. It is a documentation accuracy issue. The project currently has stale test counts in multiple docs and stale CHANGELOG comparison links.
+
+#### Map
+
+The issue points to three main files:
+
+- `README.md`
+- `docs/step-by-step.md`
+- `CHANGELOG.md`
+
+The README and step-by-step guide contain hardcoded test counts. The CHANGELOG needs version footer link updates.
+
+#### Plan
+
+I will remove or update hardcoded test-count language so the docs do not become stale again. I will prefer wording like “the full test suite” or “250+ tests” instead of exact counts unless the maintainer clearly prefers exact numbers. I will also update the CHANGELOG footer so `[Unreleased]` compares from `v0.5.0...HEAD` and add a `0.5.0` link entry if missing.
+
+#### Implement
+
+For Phase III, I plan to update the documentation files only. I will avoid unrelated formatting changes and keep the diff small.
+
+#### Review
+
+I will run a text search again to make sure stale `175` and `163` references are removed or corrected. I will also run `python -m pytest --collect-only -q` again to confirm the current collected test count and run formatting/lint commands if the project documents them.
+
+#### Evaluate
+The fix will be complete when the README and step-by-step guide no longer contradict the current test collection count, the CHANGELOG footer points to the correct comparison ranges, and the final diff is limited to the documentation issue.
 
 ## Phase III — Build
 
