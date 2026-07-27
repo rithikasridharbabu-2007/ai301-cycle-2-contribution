@@ -204,7 +204,96 @@ The fix will be complete when the README and step-by-step guide no longer contra
 
 ## Phase III — Build
 
-Status: Not started yet.
+Status: Phase III Complete
+
+### Implementation Summary
+
+For Phase III, I implemented the documentation cleanup for the stale test-count issue in `readme2demo`.
+
+The change removes outdated hardcoded test-count references from the README and step-by-step guide, replacing them with wording that is less likely to become stale. I also updated the CHANGELOG footer so the `[Unreleased]` comparison starts from `v0.5.0...HEAD` and added a `[0.5.0]` comparison link.
+
+### Branch and Commit
+
+Fork: https://github.com/rithikasridharbabu-2007/readme2demo  
+Branch: `fix-stale-doc-test-counts`  
+Commit: `f82ee3d Fix stale documentation test counts`
+
+### Files Modified
+
+- `README.md`
+- `docs/step-by-step.md`
+- `CHANGELOG.md`
+
+### What Changed
+
+In `README.md`, I changed the development test command comment from:
+
+```text
+175 unit tests, no docker/network needed
+```
+
+to:
+
+```text
+full test suite, no docker/network needed
+```
+
+In `docs/step-by-step.md`, I changed references to the “163-test suite” and “all 163 tests pass” to refer to the full test suite instead.
+
+In `CHANGELOG.md`, I updated the link footer from:
+
+```text
+[Unreleased]: https://github.com/alphacrack/readme2demo/compare/v0.4.1...HEAD
+```
+
+to:
+
+```text
+[Unreleased]: https://github.com/alphacrack/readme2demo/compare/v0.5.0...HEAD
+```
+
+and added:
+
+```text
+[0.5.0]: https://github.com/alphacrack/readme2demo/compare/v0.4.1...v0.5.0
+```
+
+### Testing and Verification
+
+I ran test collection after the documentation changes:
+
+```bash
+python -m pytest --collect-only -q
+```
+
+Result:
+
+```text
+277 tests collected in 0.16s
+```
+
+I also ran a ruff check on the changed documentation paths:
+
+```bash
+ruff check README.md docs/step-by-step.md CHANGELOG.md || true
+```
+
+Result:
+
+```text
+warning: No Python files found under the given path(s)
+All checks passed!
+```
+
+I also confirmed that the stale `175` and `163` references were removed from the changed documentation files.
+
+### Challenges Faced
+
+The main challenge was making sure the fix stayed small and matched the issue exactly. Since this was a documentation issue, I avoided changing unrelated content or code. I also chose “full test suite” instead of another exact number so the documentation is less likely to become stale again as tests are added.
+
+### Phase III Completion Notes
+
+This completes the build phase for Cycle 2. The implementation is committed and pushed to my fork branch, and the next step is to open an upstream pull request for Phase IV.
 
 ## Phase IV — Submit and Iterate
 
